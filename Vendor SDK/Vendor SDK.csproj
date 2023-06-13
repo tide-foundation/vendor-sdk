@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Vendor_SDK</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>TideVendor.SDK</PackageId>
+    <Title>Tide Vendor SDK</Title>
+    <Version>1.0.0</Version>
+    <Description>To help integrate Tide flows into your .NET web apps.</Description>
+    <RepositoryUrl>https://github.com/tide-foundation/vendor-sdk</RepositoryUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseFile>tcocl-2_0_txt.txt</PackageLicenseFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\OneDrive - Ziva Connect Pty Ltd\Desktop\tcocl-2_0_txt.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="ORK.TinySDK" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>
