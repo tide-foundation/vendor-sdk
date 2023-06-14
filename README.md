@@ -98,5 +98,5 @@ app.MapControllerRoute(
 
 app.Run();
 ```
-
+### Remember to implement [Heimdall](https://github.com/tide-foundation/heimdall) in your front end JS too!
 ### **Sample project that uses vendor-sdk can be found [here](https://github.com/tide-foundation/sample-vendor/tree/main)**
