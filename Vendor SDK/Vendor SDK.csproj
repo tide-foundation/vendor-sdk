@@ -7,11 +7,13 @@
     <Nullable>enable</Nullable>
     <PackageId>TideVendor.SDK</PackageId>
     <Title>Tide Vendor SDK</Title>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Description>To help integrate Tide flows into your .NET web apps.</Description>
     <RepositoryUrl>https://github.com/tide-foundation/vendor-sdk</RepositoryUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageLicenseFile>tcocl-2_0_txt.txt</PackageLicenseFile>
+    <Authors>Tide</Authors>
+    <Company>Tide</Company>
   </PropertyGroup>
 
   <ItemGroup>
