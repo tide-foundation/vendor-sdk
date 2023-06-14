@@ -78,8 +78,6 @@ builder.Services.Configure<VendorSDKOptions>(options =>
 
 
 var services = builder.Services;
-services.AddDbContext<DataContext>();
-services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
