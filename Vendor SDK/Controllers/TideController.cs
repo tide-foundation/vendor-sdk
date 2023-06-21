@@ -60,6 +60,7 @@ namespace Vendor_SDK.Controllers
             TideJWT jwt = new TideJWT(jwt_p);
             // Get orks of this jwt's uid
             var orkInfoTask = new SimulatorClient(SimURL).GetOrkUrls(jwt.payload.uid);
+            //-------------------------------------- Sim Request Start
 
             // Doing here to save time
             // Get first 32 bytes of encryptedByGCVK (c1) and bytes after 32th index (c2)
@@ -73,7 +74,8 @@ namespace Vendor_SDK.Controllers
                 jwt = jwt_p
             }));
 
-            OrkInfo orkInfo = await orkInfoTask;
+            //-------------------------------------- Sim Request End
+            OrkInfo orkInfo = await orkInfoTask; 
             NodeClient[] clients = orkInfo.orkUrls.Select(url => new NodeClient(url)).ToArray();
 
             byte[][] aesKeys = new byte[clients.Length][];
@@ -90,6 +92,7 @@ namespace Vendor_SDK.Controllers
             var encryptedDatai = aesKeys.Select(key => AES.Encrypt(secret, key)).ToArray();
     
             var tasks = clients.Select((client, i) => client.TestDecrypt(encryptedDatai[i], encryptedKeysi[i]));
+            //-------------------------------------- Node Test Decrypt Request Start
 
             // Determine Lis while waiting for node response
             var ids = orkInfo.orkIds.Select(id => BigInteger.Parse(id));
@@ -98,6 +101,7 @@ namespace Vendor_SDK.Controllers
             // Decrypt secret encryptedByGVVK
             byte[] decrypted_byVendor = ElGamal.Decrypt(encryptedByGVVK, _options.Value.PrivateKey);
 
+            //-------------------------------------- Node Test Decrypt Request End
             string[] encrypted_responses = await Task.WhenAll(tasks);
 
             byte[][] applied_c1s = encrypted_responses.Select((e, i) => Convert.FromBase64String(AES.Decrypt(e, aesKeys[i]))).ToArray();
