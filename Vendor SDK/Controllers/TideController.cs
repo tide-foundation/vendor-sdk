@@ -60,9 +60,8 @@ namespace Vendor_SDK.Controllers
             TideJWT jwt = new TideJWT(jwt_p);
             // Get orks of this jwt's uid
             var orkInfoTask = new SimulatorClient(SimURL).GetOrkUrls(jwt.payload.uid);
-            OrkInfo orkInfo = await 
-            NodeClient[] clients = orkInfo.orkUrls.Select(url => new NodeClient(url)).ToArray();
 
+            // Doing here to save time
             // Get first 32 bytes of encryptedByGCVK (c1) and bytes after 32th index (c2)
             byte[] c1 = Convert.FromBase64String(encryptedByGCVK).Take(32).ToArray();
             byte[] c2 = Convert.FromBase64String(encryptedByGCVK).Skip(32).ToArray();
@@ -74,8 +73,11 @@ namespace Vendor_SDK.Controllers
                 jwt = jwt_p
             }));
 
+            OrkInfo orkInfo = await orkInfoTask;
+            NodeClient[] clients = orkInfo.orkUrls.Select(url => new NodeClient(url)).ToArray();
+
             byte[][] aesKeys = new byte[clients.Length][];
-            for(int i = 0; i < clients.Length; i++)
+            for (int i = 0; i < clients.Length; i++)
             {
                 aesKeys[i] = RandomNumberGenerator.GetBytes(32);
             }
@@ -93,17 +95,19 @@ namespace Vendor_SDK.Controllers
             var ids = orkInfo.orkIds.Select(id => BigInteger.Parse(id));
             BigInteger[] lis = ids.Select(id => SecretSharing.EvalLi(id, ids, Curve.N)).ToArray();
 
+            // Decrypt secret encryptedByGVVK
+            byte[] decrypted_byVendor = ElGamal.Decrypt(encryptedByGVVK, _options.Value.PrivateKey);
+
             string[] encrypted_responses = await Task.WhenAll(tasks);
 
             byte[][] applied_c1s = encrypted_responses.Select((e, i) => Convert.FromBase64String(AES.Decrypt(e, aesKeys[i]))).ToArray();
 
             // Decrypt original c1 encrypted by cvk from user
-            byte[] decrypted = ElGamal.DecentralizedDecrypt(applied_c1s, c2, lis);
+            byte[] decrypted_byNode = ElGamal.DecentralizedDecrypt(applied_c1s, c2, lis);
 
-            // Decrypt secret encryptedByGVVK
-
-            // Compare secrets
-
+            // Compare decrypted secrets
+            if (!(decrypted_byNode.SequenceEqual(decrypted_byVendor))) return Ok("Test Failed");
+            return Ok("Test Passed");
         }
     }
 }
