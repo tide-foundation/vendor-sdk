@@ -25,10 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\ork\TinySDK\TinySDK\TinySDK.csproj" />
+    <PackageReference Include="ORK.TinySDK" Version="1.0.3" />
   </ItemGroup>
 
 </Project>

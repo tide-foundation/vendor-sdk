@@ -55,11 +55,13 @@ namespace Vendor_SDK.Controllers
         /// <param name="encryptedByGVVK"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
-        public async Task<IActionResult> DecryptionTest(string encryptedByGCVK, string encryptedByGVVK, string jwt)
+        public async Task<IActionResult> DecryptionTest(string encryptedByGCVK, string encryptedByGVVK, string jwt, string cvkOrkUrl)
         {
+            // TODO: make all this into a proper flow
+
             TideJWT tideJWT = new TideJWT(jwt);
             // Get orks of this jwt's uid
-            var orkInfoTask = new SimulatorClient(SimURL).GetOrkUrls(tideJWT.payload.uid);
+            var orkInfoTask = new NodeClient(cvkOrkUrl).GetKeyOrks(tideJWT.payload.uid, true);
             //-------------------------------------- Sim Request Start
 
             // Doing here to save time
@@ -75,7 +77,7 @@ namespace Vendor_SDK.Controllers
             }));
 
             //-------------------------------------- Sim Request End
-            OrkInfo orkInfo = await orkInfoTask; 
+            var orkInfo = await orkInfoTask; 
             NodeClient[] clients = orkInfo.orkUrls.Select(url => new NodeClient(url)).ToArray();
 
             byte[][] aesKeys = new byte[clients.Length][];
