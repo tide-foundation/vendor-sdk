@@ -35,7 +35,9 @@ namespace Vendor_SDK.Controllers
             var resp = await _httpClient.GetAsync("http://host.docker.internal:2000/keyentry/" + jwt.payload.uid).Result.Content.ReadAsStringAsync(); // CHANGE SIM URL HERE LATER
             var user = JsonSerializer.Deserialize<User>(resp, new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true // simulator is literally returining a field names "public" .NET does not allow "public" as field name
+                PropertyNameCaseInsensitive = true, // simulator is literally returining a field names "public" .NET does not allow "public" as field name
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // this json is staying on vendor severver side (no javascript escapes here)
+                // IF YOU EVER COLLECT MORE THAN JUST PUBLIC FIELD, THERE WILL BE AN ISSUE WITH JSON CHARACTERS (maybe ork field?). FIX WHEN THAT BECOMES RELEVANT
             });
             var pub_p = Point.FromBase64(user.Public);
             if (!EdDSA.Verify(jwt.GetDataToSign(), jwt.signature, pub_p))
@@ -106,7 +108,7 @@ namespace Vendor_SDK.Controllers
             //-------------------------------------- Node Test Decrypt Request End
             string[] encrypted_responses = await Task.WhenAll(tasks);
 
-            byte[][] applied_c1s = encrypted_responses.Select((e, i) => Convert.FromBase64String(AES.Decrypt(e, aesKeys[i]))).ToArray();
+            byte[][] applied_c1s = encrypted_responses.Select((e, i) => (AES.Decrypt(e, aesKeys[i]))).ToArray();
 
             // Decrypt original c1 encrypted by cvk from user
             byte[] decrypted_byNode = ElGamal.DecentralizedDecrypt(applied_c1s, c2, lis);
