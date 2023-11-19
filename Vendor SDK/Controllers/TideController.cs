@@ -24,33 +24,6 @@ namespace Vendor_SDK.Controllers
             _options = options;
         }
         /// <summary>
-        /// The endpoint to authenticate a Tide JWT and redirect the client to a vendor specified URL.
-        /// </summary>
-        /// <param name="auth_token"></param>
-        /// <returns></returns>
-        public async Task<IActionResult> Auth([FromQuery] string auth_token)
-        {
-            // Verify AuthToken and create session here
-            var jwt = new TideJWT(auth_token, true);
-            var resp = await _httpClient.GetAsync("http://host.docker.internal:2000/keyentry/" + jwt.payload.uid).Result.Content.ReadAsStringAsync(); // CHANGE SIM URL HERE LATER
-            var user = JsonSerializer.Deserialize<User>(resp, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true, // simulator is literally returining a field names "public" .NET does not allow "public" as field name
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // this json is staying on vendor severver side (no javascript escapes here)
-                // IF YOU EVER COLLECT MORE THAN JUST PUBLIC FIELD, THERE WILL BE AN ISSUE WITH JSON CHARACTERS (maybe ork field?). FIX WHEN THAT BECOMES RELEVANT
-            });
-            var pub_p = Point.FromBase64(user.Public);
-            if (!EdDSA.Verify(jwt.GetDataToSign(), jwt.signature, pub_p))
-            {
-                return Unauthorized("JWT signature invalid");
-            }
-            long epochNow_seconds = (long)(DateTimeOffset.UtcNow - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
-            if (jwt.payload.exp <= epochNow_seconds) return Unauthorized("JWT expired");
-            // then create session here
-            HttpContext.Session.SetString("user", jwt.payload.uid);
-            return Redirect(_options.Value.RedirectUrl); // only if everything is good
-        }
-        /// <summary>
         /// To test the decentralized decryption flow during sign up.
         /// </summary>
         /// <param name="encryptedByGCVK"></param>
